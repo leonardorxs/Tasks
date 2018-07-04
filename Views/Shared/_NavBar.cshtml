@@ -1,0 +1,26 @@
+<nav class="navbar navbar-dark bg-dark navbar-expand-md shadow-sm">
+        <div class="container my-auto">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Tasks</a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="navbarNav" class="navbar-collapse collapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" asp-action="Index" asp-controller="Tasks" id="navbarDropdown">
+                            Tarefas
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" asp-action="Index" asp-controller="Tasks" asp-route-filter="false">A fazer</a>
+                       
+                            <a class="dropdown-item" asp-action="Index" asp-controller="Tasks" asp-route-filter="true">Concluídas</a>
+                        </div>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Sobre</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Contact">Contato</a></li>
+                </ul>
+                <partial name="_LoginPartial" />
+            </div>
+        </div>
+    </nav>

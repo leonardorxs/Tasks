@@ -1,0 +1,41 @@
+@using Tasks.ViewModels;
+@model TaskViewModel;
+
+@{
+    ViewData["Title"] = "Tarefas";
+}
+
+<div class="panel panel-default task-panel">
+    <div class="panel-heading">@ViewData["Title"]</div>
+    
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <td>&#x2714;</td>
+                <td>tarefa</td>
+                <td>Data Limite</td>
+                <td></td>
+            </tr>
+        </thead>
+        @foreach (var item in Model.TaskItems)
+        {
+            <tr>
+                <td class="align-middle">
+                    <input type="checkbox" name="@item.Id" value="true" checked=@item.IsCompleted onclick="return false;">
+                </td>
+                <td class="align-middle">@item.Name</td>
+                <td class="align-middle">@String.Format("{0:dd/MM/yyyy}", item.Deadline)</td>
+                <td class="align-middle">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-link">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-link">Deletar</a>
+                </td>
+            </tr>
+        }
+    </table>
+    <div class="panel-footer add-item-form">
+        <form asp-controller="Tasks" asp-action="AddTaskItem" method="GET">
+            <div id="add-item-error" class="text-danger"></div>
+            <button type="submit" class="btn btn-success">Incluir</button>
+        </form>
+    </div>
+</div>
