@@ -7,6 +7,9 @@ namespace Tasks.Models
     {
         public int Id { get; set; }
 
+        [StringLength(200)]
+        public string OwnerId { get; set; }
+
         [Required(ErrorMessage = "O nome da tarefa é obrigatório!", AllowEmptyStrings = false)]
         [Display(Name = "Nome da tarefa")]
         [StringLength(100, ErrorMessage = "O nome da tarefa deve ter, no máximo, 120 caracteres.")]

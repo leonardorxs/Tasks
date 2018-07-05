@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Tasks.Data;
 using Tasks.Models;
@@ -17,18 +18,20 @@ namespace Tasks.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<TaskItem>> GetItemsAsync(bool? filter)
+        public async Task<IEnumerable<TaskItem>> GetItemsAsync(bool? filter, IdentityUser user)
         {
             if (filter != null)
             {
                 var items = await _context.Tasks
-                            .Where(t => t.IsCompleted == filter)
+                            .Where(t => t.IsCompleted == filter && t.OwnerId == user.Id)
                             .ToArrayAsync();
                 return items;
             }
             else
             {
-                var items = await _context.Tasks.ToArrayAsync();
+                var items = await _context.Tasks
+                            .Where(t => t.OwnerId == user.Id)
+                            .ToArrayAsync();
                 return items;
             }
         }
@@ -39,7 +42,8 @@ namespace Tasks.Services
             {
                 IsCompleted = false,
                 Name = newItem.Name,
-                Deadline = newItem.Deadline
+                Deadline = newItem.Deadline,
+                OwnerId = newItem.OwnerId
             };
 
             _context.Tasks.Add(task);
@@ -60,10 +64,13 @@ namespace Tasks.Services
             return _context.Tasks.Find(id);
         }
 
-        public async Task Update(TaskItem item)
+        public async Task Update(TaskItem item, IdentityUser user)
         {
             if (item == null)
                 throw new ArgumentException(nameof(item));
+
+            if (item.OwnerId == null)
+                item.OwnerId = user.Id;
 
             _context.Tasks.Update(item);
             await _context.SaveChangesAsync();

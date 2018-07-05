@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Tasks.Models;
 
 namespace Tasks.Services
 {
     public interface ITaskItemService
     {
-        Task<IEnumerable<TaskItem>> GetItemsAsync(bool? filter);
+        Task<IEnumerable<TaskItem>> GetItemsAsync(bool? filter, IdentityUser user);
 
         Task<bool> AddItemAsync(TaskItem newItem);
 
@@ -14,7 +15,7 @@ namespace Tasks.Services
 
         TaskItem GetItemById(int? id);
 
-        Task Update(TaskItem item);
+        Task Update(TaskItem item, IdentityUser user);
 
     }
 }

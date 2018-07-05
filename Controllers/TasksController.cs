@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tasks.Models;
@@ -7,22 +9,29 @@ using Tasks.ViewModels;
 
 namespace Tasks.Controllers
 {
+    [Authorize]
     public class TasksController : Controller
     {
         private readonly ITaskItemService _taskService;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public TasksController(ITaskItemService taskService)
+        public TasksController(ITaskItemService taskService, UserManager<IdentityUser> userManager)
         {
             _taskService = taskService;
+            _userManager = userManager;
         }
+
         //lista de tarefas
         public async Task<IActionResult> Index(bool? filter)
         {
             //obter itens da tarefa
             // TempTaskItemService service = new TempTaskItemService();
             // var tasks = service.GetItemAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            // if (currentUser == null)
+            //     return Challenge();
 
-            var tasks = await _taskService.GetItemsAsync(filter);
+            var tasks = await _taskService.GetItemsAsync(filter, currentUser);
 
             var model = new TaskViewModel()
             {
@@ -41,6 +50,8 @@ namespace Tasks.Controllers
         [HttpPost]
         public async Task<IActionResult> AddTaskItem([Bind("Id, IsCompleted, Name, Deadline")] TaskItem taskItem)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            taskItem.OwnerId = currentUser.Id;
             if (!ModelState.IsValid)
                 return View(taskItem);
 
@@ -48,6 +59,7 @@ namespace Tasks.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [AllowAnonymous]
         public IActionResult Delete(int? id)
         {
             if (id == null)
@@ -60,8 +72,8 @@ namespace Tasks.Controllers
             return View(taskItem);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _taskService.DeleteItem(id);
             return RedirectToAction(nameof(Index));
@@ -87,12 +99,14 @@ namespace Tasks.Controllers
             if (id != taskItem.Id)
                 return NotFound();
 
+            var currentUser = await _userManager.GetUserAsync(User);
+
             if (!ModelState.IsValid)
                 return View(taskItem);
 
             try
             {
-                await _taskService.Update(taskItem);
+                await _taskService.Update(taskItem, currentUser);
             }
             catch (DbUpdateConcurrencyException)
             {
